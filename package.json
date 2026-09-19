@@ -1,0 +1,18 @@
+{
+  "name": "grace-divine-moisson-2026",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Landing page statique — Fête de la Moisson 2026, Paroisse La Grâce Divine",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "serve": "vite preview --outDir .",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^7.3.6"
+  }
+}

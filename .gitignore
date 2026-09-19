@@ -1,0 +1,16 @@
+# Dépendances
+node_modules/
+
+# Photos sources pleine résolution (100 Mo) : utilisées seulement pour générer
+# les versions optimisées de assets/galerie/. Inutiles au déploiement du site.
+photos-originales/
+
+# Système / éditeurs
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Journaux
+*.log
+npm-debug.log*
