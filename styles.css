@@ -79,7 +79,6 @@ button { font: inherit; }
 .main-nav > a:not(.btn) { position: relative; }
 .main-nav > a:not(.btn)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -6px; height: 2px; background: var(--gold-500); transition: right .2s ease; }
 .main-nav > a:not(.btn):hover::after { right: 0; }
-.nav-install { border: 0; background: transparent; color: var(--green-800); font-weight: 800; cursor: pointer; }
 .menu-toggle { display: none; width: 44px; height: 44px; border: 0; background: transparent; padding: 10px; cursor: pointer; }
 .menu-toggle span { display: block; height: 2px; background: var(--green-900); margin: 5px 0; border-radius: 2px; }
 
@@ -105,8 +104,6 @@ button { font: inherit; }
 .btn-outline:hover { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.05); }
 .btn-ghost { background: transparent; color: var(--gold-200); border-color: transparent; }
 .btn-dark { background: var(--green-950); color: var(--white); }
-.btn.is-disabled { opacity: .62; cursor: default; }
-.btn.is-disabled:hover { transform: none; }
 
 .hero {
   position: relative;
@@ -353,16 +350,28 @@ button { font: inherit; }
 .gallery-track:focus-visible { outline: 3px solid var(--green-700); outline-offset: -3px; border-radius: 22px; }
 .gallery-item {
   position: relative;
-  flex: 0 0 clamp(260px, 33vw, 430px);
+  /* Hauteur commune à toutes les diapos, largeur déduite du format de la
+     photo : portrait et paysage cohabitent sans recadrage. Le format réel est
+     posé en style inline par app.js ; 3/4 n'est que le repli avant chargement. */
+  flex: 0 0 auto;
+  height: clamp(340px, 46vh, 540px);
+  aspect-ratio: 3 / 4;
+  /* Une photo très large (16/9) dépasserait la largeur de l'écran et resterait
+     invisible en entier. Le plafond la contient ; `contain` sur l'image évite
+     alors de la rogner — les formats qui tiennent, eux, remplissent
+     exactement leur cadre, sans bande. */
+  max-width: 100%;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
-  scroll-snap-align: start;
+  /* `center` plutôt que `start` : la photo regardée se place au milieu du
+     cadre, avec un aperçu symétrique de la précédente et de la suivante.
+     Avec `start`, elle restait collée à gauche et paraissait décadrée. */
+  scroll-snap-align: center;
   border-radius: 20px;
   background: var(--cream-deep);
   box-shadow: 0 10px 34px rgba(6,60,36,.08);
 }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item img { width: 100%; height: 100%; object-fit: contain; }
 .gallery-caption {
   position: absolute;
   inset: auto 0 0 0;
@@ -524,7 +533,7 @@ details p { margin: -3px 0 20px; color: var(--muted); }
     border: 1px solid rgba(6,60,36,.1); box-shadow: var(--shadow);
   }
   .main-nav.is-open { display: flex; }
-  .main-nav > a:not(.btn), .nav-install { padding: 12px 10px; text-align: left; }
+  .main-nav > a:not(.btn) { padding: 12px 10px; text-align: left; }
   .main-nav > a:not(.btn)::after { display: none; }
   .main-nav .btn { margin-top: 7px; }
   .hero { padding-top: 56px; min-height: 760px; }
@@ -548,7 +557,10 @@ details p { margin: -3px 0 20px; color: var(--muted); }
   .schedule-content h3 { font-size: 23px; padding-right: 0; }
   .schedule-day.is-next::after { position: static; display: inline-block; margin: 12px 0 0 18px; grid-column: 2; width: fit-content; }
   .gallery-track { gap: 12px; }
-  .gallery-item { border-radius: 16px; flex-basis: clamp(230px, 76vw, 330px); }
+  /* Hauteur plafonnée par la largeur d'écran : une photo paysage (4/3) doit
+     tenir entièrement dans le cadre, sinon elle est impossible à voir en
+     entier. 68vw de haut => 90vw de large, ce qui rentre dans le conteneur. */
+  .gallery-item { border-radius: 16px; height: clamp(230px, 68vw, 420px); }
   /* Flèches ramenées dans le cadre : pas de place pour déborder sur mobile. */
   [data-gallery-prev] { left: 6px; }
   [data-gallery-next] { right: 6px; }

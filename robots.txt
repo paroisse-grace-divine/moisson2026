@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://grace-divine.fr/moisson-2026/sitemap.xml
+Sitemap: https://grace-divine.fr/moisson/sitemap.xml

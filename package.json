@@ -7,8 +7,10 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
+    "netlify": "npm run build:site && npx --yes netlify-cli dev",
     "serve": "vite preview --outDir .",
     "build": "tsc",
+    "build:site": "rm -rf dist && mkdir -p dist && cp -R index.html styles.css app.js config.js manifest.webmanifest sw.js robots.txt sitemap.xml assets dist/",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

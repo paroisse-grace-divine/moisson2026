@@ -84,13 +84,15 @@ function setupDonation() {
             link.href = donationUrl;
             link.target = "_blank";
             link.rel = "noopener noreferrer";
-            link.classList.remove("is-disabled");
-            link.removeAttribute("aria-disabled");
         }
         else {
+            // Tant que le lien HelloAsso n'est pas renseigné, le bouton mène à la
+            // section Don, qui explique la situation et donne les contacts. Il reste
+            // donc bel et bien actif : ni style grisé, ni aria-disabled, qui
+            // annoncerait à tort aux lecteurs d'écran un bouton hors service.
             link.href = "#don";
-            link.classList.add("is-disabled");
-            link.setAttribute("aria-disabled", "true");
+            link.removeAttribute("target");
+            link.removeAttribute("rel");
         }
     });
     if (status && donationUrl)
@@ -183,12 +185,33 @@ function renderGallery() {
         const alt = escapeHtml(photo.alt?.trim() || caption || "Vie de la paroisse La Grâce Divine");
         // Les premières diapos sont visibles d'emblée : pas de chargement différé.
         const loading = index < 4 ? "eager" : "lazy";
+        // Hauteur uniforme, largeur dictée par le format : une photo paysage reste
+        // paysage au lieu d'être rognée dans une vignette portrait.
+        const ratio = /^\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?$/.test(photo.ratio?.trim() || "")
+            ? ` style="aspect-ratio:${photo.ratio.trim()}"`
+            : "";
         // Vignettes purement illustratives : aucun lien, rien à ouvrir au clic.
-        return `<figure class="gallery-item">
+        return `<figure class="gallery-item"${ratio}>
       <img src="${src}" alt="${alt}" loading="${loading}" decoding="async">
       ${caption ? `<figcaption class="gallery-caption">${escapeHtml(caption)}</figcaption>` : ""}
     </figure>`;
     }).join("");
+    // Photos ajoutées sans `ratio` dans config.js : on le déduit une fois
+    // l'image chargée, pour qu'elles ne restent pas au format par défaut.
+    $$(".gallery-item img", track).forEach(img => {
+        const figure = img.parentElement;
+        if (!figure || figure.style.aspectRatio)
+            return;
+        const apply = () => {
+            if (img.naturalWidth && img.naturalHeight) {
+                figure.style.aspectRatio = `${img.naturalWidth}/${img.naturalHeight}`;
+            }
+        };
+        if (img.complete)
+            apply();
+        else
+            img.addEventListener("load", apply, { once: true });
+    });
 }
 const AUTOPLAY_DELAY = 4000;
 function setupGalleryCarousel() {
@@ -199,15 +222,28 @@ function setupGalleryCarousel() {
     const toggle = $("[data-gallery-toggle]");
     if (!track || !controls || !prev || !next || !toggle)
         return;
-    /** Largeur d'une diapo + gouttière : un pas fait défiler d'une photo. */
-    const step = () => {
-        const first = track.querySelector(".gallery-item");
-        if (!first)
-            return track.clientWidth;
-        const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
-        return first.getBoundingClientRect().width + gap;
-    };
     const maxScroll = () => track.scrollWidth - track.clientWidth;
+    /** Déplace d'une photo, en visant sa position réelle.
+     *  Les diapos n'ont pas toutes la même largeur (portrait, paysage, 16/9) :
+     *  avancer d'un nombre fixe de pixels décalerait progressivement le cadrage. */
+    const goToAdjacentSlide = (direction) => {
+        const slides = $$(".gallery-item", track);
+        if (!slides.length)
+            return;
+        // Centre visible actuel, pour trouver la diapo voisine.
+        const center = track.scrollLeft + track.clientWidth / 2;
+        const tolerance = 4; // arrondis de rendu et de défilement fluide
+        const middle = (slide) => slide.offsetLeft + slide.offsetWidth / 2;
+        const target = direction === 1
+            ? slides.find(slide => middle(slide) > center + tolerance)
+            : slides.filter(slide => middle(slide) < center - tolerance).pop();
+        // Position qui centre la diapo, en accord avec `scroll-snap-align: center`.
+        const centered = (slide) => slide.offsetLeft - (track.clientWidth - slide.offsetWidth) / 2;
+        const left = target
+            ? Math.max(0, Math.min(centered(target), maxScroll()))
+            : (direction === 1 ? maxScroll() : 0);
+        track.scrollTo({ left, behavior: "smooth" });
+    };
     const scrollable = () => maxScroll() > 4;
     const update = () => {
         // Rien à faire défiler (peu de photos, grand écran) : on masque les commandes.
@@ -233,7 +269,7 @@ function setupGalleryCarousel() {
                 if (track.scrollLeft >= maxScroll() - 2)
                     track.scrollTo({ left: 0, behavior: "smooth" });
                 else
-                    track.scrollBy({ left: step(), behavior: "smooth" });
+                    goToAdjacentSlide(1);
             }, AUTOPLAY_DELAY);
         }
     };
@@ -264,8 +300,8 @@ function setupGalleryCarousel() {
             sync();
         }, { threshold: 0.2 }).observe(track);
     }
-    prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
-    next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    prev.addEventListener("click", () => goToAdjacentSlide(-1));
+    next.addEventListener("click", () => goToAdjacentSlide(1));
     track.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", () => { update(); sync(); });
     update();
@@ -295,29 +331,6 @@ function setupReveal() {
         });
     }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
     items.forEach(item => observer.observe(item));
-}
-let deferredInstallPrompt = null;
-function setupInstallPrompt() {
-    const button = $("#install-app");
-    if (!button)
-        return;
-    window.addEventListener("beforeinstallprompt", (event) => {
-        event.preventDefault();
-        deferredInstallPrompt = event;
-        button.hidden = false;
-    });
-    button.addEventListener("click", async () => {
-        if (!deferredInstallPrompt)
-            return;
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        button.hidden = true;
-    });
-    window.addEventListener("appinstalled", () => {
-        deferredInstallPrompt = null;
-        button.hidden = true;
-    });
 }
 function isLocalDev() {
     const host = window.location.hostname;
@@ -355,7 +368,6 @@ renderGallery();
 setupGalleryCarousel();
 highlightNextSchedule();
 setupReveal();
-setupInstallPrompt();
 registerServiceWorker();
 setupCopyright();
 updateCountdown();

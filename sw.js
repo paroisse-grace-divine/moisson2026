@@ -1,4 +1,4 @@
-const CACHE = "moisson-2026-v4";
+const CACHE = "moisson-2026-v12";
 const ASSETS = [
   "./",
   "./index.html",

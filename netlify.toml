@@ -1,0 +1,131 @@
+# Configuration Netlify — Fête de la Moisson 2026
+# https://docs.netlify.com/routing/redirects/
+
+[build]
+  # Site 100 % statique. `build:site` recopie les fichiers à publier dans
+  # dist/ — Netlify installe les dépendances dès qu'un package.json existe, et
+  # publier la racine du dépôt embarquerait node_modules, les sources
+  # TypeScript et le plan interne dans le site en ligne.
+  command = "npm run build:site"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Serveur local `npm run netlify` : sert dist/ en appliquant les redirections
+# et les en-têtes ci-dessous — c'est le seul moyen de tester /don, /live et la
+# redirection de la racine avant déploiement (`npm run dev` sert les fichiers
+# bruts, sans aucune de ces règles).
+[dev]
+  framework = "#static"
+  publish = "dist"
+  port = 8888
+
+# ---------------------------------------------------------------------------
+# Emplacement du site
+# ---------------------------------------------------------------------------
+# Les fichiers sont publiés à la racine de dist/, et /moisson/ est une
+# RÉÉCRITURE (status 200) et non un vrai dossier.
+#
+# Pourquoi : servi depuis un vrai dossier, « /moisson » sans barre finale
+# affiche la page mais ses chemins relatifs (./styles.css) résolvent depuis la
+# racine du domaine et renvoient des 404 — page sans aucun style. Corriger par
+# une redirection « /moisson -> /moisson/ » est impossible : Netlify ignore la
+# barre finale à la comparaison, la règle se redéclenche sur sa propre cible et
+# boucle à l'infini (vérifié en local).
+# Avec une réécriture, les deux formes fonctionnent : les fichiers existent
+# réellement à la racine, donc /styles.css comme /moisson/styles.css aboutissent.
+[[redirects]]
+  from = "/moisson/*"
+  to = "/:splat"
+  status = 200
+
+# La racine renvoie vers la Moisson en attendant le site paroissial complet.
+# force = true est nécessaire : sans lui, le fichier index.html réellement
+# présent à la racine l'emporterait sur la règle.
+# 302 et non 301 : un 301 serait mémorisé durablement par les navigateurs, qui
+# ne verraient jamais le futur site paroissial sans vider leur cache.
+[[redirects]]
+  from = "/"
+  to = "/moisson/"
+  status = 302
+  force = true
+
+# ---------------------------------------------------------------------------
+# Liens courts à partager (affiches, WhatsApp, oral)
+# ---------------------------------------------------------------------------
+# 302 également : ces destinations changent à chaque campagne de dons et à
+# chaque direct.
+
+# grace-divine.fr/don
+[[redirects]]
+  from = "/don"
+  # TODO : remplacer par l'URL HelloAsso, ex.
+  # to = "https://www.helloasso.com/associations/paroisse-la-grace-divine/formulaires/1"
+  # En attendant, on renvoie vers la section Don de la page : jamais de 404.
+  to = "https://www.helloasso.com/associations/eglise-christianisme-celeste-grace-divine/formulaires/3"
+  status = 302
+
+# grace-divine.fr/live
+[[redirects]]
+  from = "/live"
+  # TODO : remplacer par l'URL YouTube (chaîne ou direct), ex.
+  # to = "https://www.youtube.com/@paroissegracedivine/live"
+  to = "/moisson/#direct"
+  status = 302
+
+# grace-divine.fr/programme
+[[redirects]]
+  from = "/programme"
+  to = "/moisson/#programme"
+  status = 302
+
+# grace-divine.fr/galerie
+[[redirects]]
+  from = "/galerie"
+  to = "/moisson/#galerie"
+  status = 302
+
+# ---------------------------------------------------------------------------
+# Compatibilité des anciennes URLs
+# ---------------------------------------------------------------------------
+# Le site était initialement prévu sous /moisson-2026/.
+[[redirects]]
+  from = "/moisson-2026/*"
+  to = "/moisson/:splat"
+  status = 301
+
+# ---------------------------------------------------------------------------
+# En-têtes
+# ---------------------------------------------------------------------------
+# Le service worker ne doit jamais venir du cache HTTP, sinon les mises à jour
+# du site ne parviennent pas aux visiteurs déjà venus.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# config.js porte les liens HelloAsso et YouTube : il doit pouvoir changer
+# sans attendre l'expiration d'un cache.
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Photos, affiches et icônes : noms stables, contenu figé.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

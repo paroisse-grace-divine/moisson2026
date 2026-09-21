@@ -14,3 +14,12 @@ photos-originales/
 # Journaux
 *.log
 npm-debug.log*
+
+# Sortie du script de publication Netlify
+dist/
+
+# Local Netlify folder
+.netlify
+
+# Artefact du CLI Netlify (runtime Edge Functions, non utilise ici)
+deno.lock
