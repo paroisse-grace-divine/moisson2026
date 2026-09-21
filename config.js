@@ -1,6 +1,8 @@
 /**
  * Configuration éditable sans recompilation.
- * 1) Collez l'URL HelloAsso dans helloAssoUrl.
+ * 1) helloAssoUrl est FACULTATIF : le lien de don est tenu par la redirection
+ *    /don dans netlify.toml, qui mène à HelloAsso. Le renseigner ici évite
+ *    seulement le saut de redirection.
  * 2) Collez l'URL de la chaîne YouTube dans youtubeChannelUrl.
  * 3) Pour chaque direct, collez l'URL YouTube dans youtubeUrl.
  * 4) Pour la galerie, déposez les photos dans assets/galerie/ et listez-les

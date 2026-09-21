@@ -78,25 +78,17 @@ function setupWhatsAppShare() {
 function setupDonation() {
     const donationUrl = config.helloAssoUrl?.trim();
     const links = $$("[data-donation-link]");
-    const status = $("#donation-status");
+    // Les boutons pointent déjà sur /don dans le HTML : cette redirection, tenue
+    // par netlify.toml, mène à HelloAsso sans passer par la page. Renseigner
+    // helloAssoUrl ici ne fait qu'éviter le saut de redirection ; laissé vide,
+    // le lien reste parfaitement fonctionnel, y compris sans JavaScript.
     links.forEach(link => {
-        if (donationUrl) {
-            link.href = donationUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-        }
-        else {
-            // Tant que le lien HelloAsso n'est pas renseigné, le bouton mène à la
-            // section Don, qui explique la situation et donne les contacts. Il reste
-            // donc bel et bien actif : ni style grisé, ni aria-disabled, qui
-            // annoncerait à tort aux lecteurs d'écran un bouton hors service.
-            link.href = "#don";
-            link.removeAttribute("target");
-            link.removeAttribute("rel");
-        }
+        if (!donationUrl)
+            return;
+        link.href = donationUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
     });
-    if (status && donationUrl)
-        status.textContent = "Paiement et collecte via HelloAsso.";
 }
 function youtubeEmbedUrl(url) {
     try {
@@ -349,6 +341,18 @@ function registerServiceWorker() {
         });
         return;
     }
+    // Un service worker enregistré à la racine du domaine par une version
+    // antérieure du site y intercepte les navigations et sert la page mise en
+    // cache : la redirection « / vers /moisson/ » n'est alors jamais vue. Le
+    // nôtre porte sur /moisson/ ; on retire donc celui de la racine.
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => {
+            if (new URL(registration.scope).pathname === "/")
+                void registration.unregister();
+        });
+    }).catch(() => {
+        // Sans importance : la page reste utilisable.
+    });
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(() => {
             // PWA support is progressive; the page remains fully usable without it.

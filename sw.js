@@ -1,6 +1,5 @@
-const CACHE = "moisson-2026-v12";
+const CACHE = "moisson-2026-v13";
 const ASSETS = [
-  "./",
   "./index.html",
   "./styles.css",
   "./app.js",
@@ -28,14 +27,27 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  // Les navigations passent TOUJOURS par le réseau. Servies depuis le cache,
+  // elles court-circuitent les redirections définies côté serveur (/ vers
+  // /moisson/, /don vers HelloAsso) : le navigateur ne les voit jamais et
+  // affiche la page mise en cache à la place. Pour une navigation, la requête
+  // a redirect="manual", donc fetch renvoie la redirection telle quelle et
+  // c'est le navigateur qui la suit.
+  if (request.mode === "navigate") {
+    event.respondWith(fetch(request).catch(() => caches.match("./index.html")));
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(cached => {
+    caches.match(request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(response => {
+      return fetch(request).then(response => {
         if (!response || response.status !== 200 || response.type === "opaque") return response;
         const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        caches.open(CACHE).then(cache => cache.put(request, copy));
         return response;
       }).catch(() => caches.match("./index.html"));
     })
