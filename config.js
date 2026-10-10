@@ -14,9 +14,16 @@
  */
 window.MOISSON_CONFIG = {
   helloAssoUrl: "",
-  youtubeChannelUrl: "",
+  youtubeChannelUrl: "https://www.youtube.com/@paroissegracedivine",
   shareUrl: "https://grace-divine.fr/moisson/",
   streams: [
+    {
+      title: "Le ministère prophétique sur les réseaux sociaux",
+      dateLabel: "Vendredi 2 octobre · 19h",
+      startsAt: "2026-10-02T19:00:00+02:00",
+      youtubeUrl: "https://www.youtube.com/watch?v=CAHPj2bdoPs",
+      anchorId: "stream-conference-vendredi"
+    },
     {
       title: "Veillée des Visionnaires de France",
       dateLabel: "Vendredi 2 octobre · 21h",
@@ -32,24 +39,31 @@ window.MOISSON_CONFIG = {
       anchorId: "stream-conferences-samedi"
     },
     {
-      title: "Culte d'engrangement & veillée d'adoration",
+      title: "Culte d'engrangement",
       dateLabel: "Vendredi 9 octobre · 19h",
       startsAt: "2026-10-09T19:00:00+02:00",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=O4MMG8cTRkU",
       anchorId: "stream-engrangement"
+    },
+    {
+      title: "Veillée d'adoration et de louange",
+      dateLabel: "Vendredi 9 octobre · après le culte",
+      startsAt: "2026-10-09T23:00:00+02:00",
+      youtubeUrl: "https://www.youtube.com/watch?v=H11VwJcs98I",
+      anchorId: "stream-veillee-adoration"
     },
     {
       title: "Porter des fruits et rayonner",
       dateLabel: "Samedi 10 octobre · 10h",
       startsAt: "2026-10-10T10:00:00+02:00",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=aYnthqMvmRI",
       anchorId: "stream-porter-des-fruits"
     },
     {
       title: "Grand Culte d'Action de Grâce",
       dateLabel: "Dimanche 11 octobre · 10h",
       startsAt: "2026-10-11T10:00:00+02:00",
-      youtubeUrl: "",
+      youtubeUrl: "https://www.youtube.com/watch?v=KqUnV45dMnA",
       anchorId: "stream-grand-culte"
     }
   ],
