@@ -9,7 +9,7 @@
  *    dans `gallery` (elles défilent dans un carrousel, dans cet ordre).
  *
  * L'ordre du tableau `streams` définit l'ordre d'affichage des cartes.
- * `anchorId` doit rester synchronisé avec les liens « Direct prévu » du
+ * `anchorId` doit rester synchronisé avec les liens « Replay … » du
  * programme dans index.html.
  */
 window.MOISSON_CONFIG = {
@@ -23,20 +23,6 @@ window.MOISSON_CONFIG = {
       startsAt: "2026-10-02T19:00:00+02:00",
       youtubeUrl: "https://www.youtube.com/watch?v=CAHPj2bdoPs",
       anchorId: "stream-conference-vendredi"
-    },
-    {
-      title: "Veillée des Visionnaires de France",
-      dateLabel: "Vendredi 2 octobre · 21h",
-      startsAt: "2026-10-02T21:00:00+02:00",
-      youtubeUrl: "",
-      anchorId: "stream-visionnaires"
-    },
-    {
-      title: "Conférences bibliques — Les femmes de prière et de foi",
-      dateLabel: "Samedi 3 octobre · 18h–21h",
-      startsAt: "2026-10-03T18:00:00+02:00",
-      youtubeUrl: "",
-      anchorId: "stream-conferences-samedi"
     },
     {
       title: "Culte d'engrangement",

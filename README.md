@@ -138,12 +138,14 @@ window.MOISSON_CONFIG = {
 Les URLs YouTube standard, `youtu.be`, `/live/` et `/embed/` sont reconnues.
 
 Chaque entrée de `streams` génère une carte dans la section « Suivre la Moisson en direct ».
-Son `anchorId` doit correspondre au lien « Direct prévu » du jour concerné dans `index.html`
-(les cinq dates du programme en ont un).
+Son `anchorId` doit correspondre au lien « Replay … » du jour concerné dans `index.html`.
+Un direct qui n'a finalement pas eu lieu doit être retiré de `streams` **et** sa puce retirée du
+programme : une carte sans lien promettrait un replay qui n'existera jamais.
 
-> **Important** : `config.js` fait partie des fichiers mis en cache par le service worker.
-> Après y avoir collé les URLs, incrémentez `CACHE` dans `sw.js` — sinon les visiteurs déjà
-> venus continueront de voir l'ancienne configuration (sans les liens).
+> **Cache** : `config.js`, `app.js`, `styles.css` et `index.html` sont servis réseau d'abord par le
+> service worker et en `no-cache` par Netlify ; une mise à jour apparaît donc au premier
+> rechargement. Incrémentez tout de même `CACHE` dans `sw.js` à chaque déploiement : c'est ce qui
+> purge l'ancien cache (photos comprises) chez les visiteurs déjà venus.
 
 ## Galerie « La vie de la communauté »
 

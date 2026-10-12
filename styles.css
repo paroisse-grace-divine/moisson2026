@@ -320,8 +320,6 @@ button { font: inherit; }
 .live-empty span { display: inline-grid; place-items: center; width: 56px; height: 56px; padding-left: 4px; background: rgba(255,255,255,.08); border-radius: 50%; color: var(--gold-200); }
 .live-empty h3 { margin: 18px 0 8px; font-family: Georgia, serif; font-size: 26px; color: white; }
 .live-empty p { margin: 0; }
-.live-note { margin: 18px 0 0; color: #91a89a; font-size: 12px; }
-.live-note code { color: var(--gold-200); }
 
 .donation { padding: 68px 0; }
 .donation-grid { display: grid; grid-template-columns: 1fr auto; gap: 50px; align-items: center; }
